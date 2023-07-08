@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
 import 'package:super_mario_bros/level/level_option.dart';
+import 'package:super_mario_bros/objects/platform.dart';
 
 class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
   final LevelOption option;
@@ -30,6 +31,26 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
       (level.tileMap.map.height * level.tileMap.map.tileHeight).toDouble(),
     );
 
+    createPlatforms(level.tileMap);
+
     return super.onLoad();
+  }
+
+  // Create Platforms.
+  void createPlatforms(RenderableTiledMap tileMap) {
+    // Create platforms.
+    ObjectGroup? platformsLayer = tileMap.getLayer<ObjectGroup>('Platforms');
+
+    if (platformsLayer == null) {
+      throw Exception('Platforms layer not found.');
+    }
+
+    for (final TiledObject obj in platformsLayer.objects) {
+      final Platform platform = Platform(
+        position: Vector2(obj.x, obj.y),
+        size: Vector2(obj.width, obj.height),
+      );
+      gameRef.world.add(platform);
+    }
   }
 }
