@@ -61,9 +61,13 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     await super.onLoad();
 
     final SpriteAnimation idle = await AnimationConfigs.mario.idle();
+    final SpriteAnimation walking = await AnimationConfigs.mario.walking();
+    final SpriteAnimation jumping = await AnimationConfigs.mario.jumping();
 
     animations = {
       MarioAnimationState.idle: idle,
+      MarioAnimationState.walk: walking,
+      MarioAnimationState.jump: jumping,
     };
 
     current = MarioAnimationState.idle;
@@ -124,6 +128,16 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     FlameAudio.play(Globals.jumpSmallSFX);
   }
 
+  void marioAnimationUpdate() {
+    if (!isOnGround) {
+      current = MarioAnimationState.jump;
+    } else if (_hAxisInput < 0 || _hAxisInput > 0) {
+      current = MarioAnimationState.walk;
+    } else if (_hAxisInput == 0) {
+      current = MarioAnimationState.idle;
+    }
+  }
+
   @override
   bool onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     _hAxisInput = 0;
@@ -150,6 +164,7 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     positionUpdate(dt);
     speedUpdate();
     facingDirectionUpdate();
+    marioAnimationUpdate();
   }
 
   @override
