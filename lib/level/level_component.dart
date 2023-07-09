@@ -6,6 +6,7 @@ import 'package:super_mario_bros/actors/mario.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
 import 'package:super_mario_bros/level/level_option.dart';
+import 'package:super_mario_bros/objects/blocks/mystery_block.dart';
 import 'package:super_mario_bros/objects/platform.dart';
 
 class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
@@ -44,10 +45,32 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
 
     createPlatforms(level.tileMap);
     createActors(level.tileMap);
+    createBlocks(level.tileMap);
 
     _setupCamera();
 
     return super.onLoad();
+  }
+
+  void createBlocks(RenderableTiledMap tileMap) {
+    ObjectGroup? blocksLayer = tileMap.getLayer<ObjectGroup>('Blocks');
+
+    if (blocksLayer == null) {
+      throw Exception('Blocks layer not found.');
+    }
+
+    for (final TiledObject obj in blocksLayer.objects) {
+      switch (obj.name) {
+        case 'Mystery':
+          final MysteryBlock mysteryBlock = MysteryBlock(
+            position: Vector2(obj.x, obj.y),
+          );
+          gameRef.world.add(mysteryBlock);
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   // Create Platforms.
@@ -71,13 +94,13 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
   // Create Actors.
   void createActors(RenderableTiledMap tileMap) {
     // Create platforms.
-    ObjectGroup? platformsLayer = tileMap.getLayer<ObjectGroup>('Actors');
+    ObjectGroup? actorsLayer = tileMap.getLayer<ObjectGroup>('Actors');
 
-    if (platformsLayer == null) {
+    if (actorsLayer == null) {
       throw Exception('Actors layer not found.');
     }
 
-    for (final TiledObject obj in platformsLayer.objects) {
+    for (final TiledObject obj in actorsLayer.objects) {
       switch (obj.name) {
         case 'Mario':
           _mario = Mario(
