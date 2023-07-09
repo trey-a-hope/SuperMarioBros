@@ -1,11 +1,14 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
 
 class Goomba extends SpriteAnimationComponent
     with HasGameRef<SuperMarioBrosGame>, CollisionCallbacks {
+  final double _speed = 50;
+
   Goomba({
     required Vector2 position,
   }) : super(
@@ -16,5 +19,27 @@ class Goomba extends SpriteAnimationComponent
           ),
           anchor: Anchor.topCenter,
           animation: AnimationConfigs.goomba.walking(),
-        );
+        ) {
+    Vector2 targetPosition = position;
+
+    // Goomba will move 100 pixels to the left and right.
+    targetPosition.x -= 100;
+
+    final SequenceEffect effect = SequenceEffect(
+      [
+        MoveToEffect(
+          targetPosition,
+          EffectController(speed: _speed),
+        ),
+        MoveToEffect(
+          position,
+          EffectController(speed: _speed),
+        ),
+      ],
+      infinite: true,
+      alternate: true,
+    );
+
+    add(effect);
+  }
 }
