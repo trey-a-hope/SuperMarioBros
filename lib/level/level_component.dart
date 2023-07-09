@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -6,6 +8,7 @@ import 'package:super_mario_bros/actors/mario.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
 import 'package:super_mario_bros/level/level_option.dart';
+import 'package:super_mario_bros/objects/blocks/brick_block.dart';
 import 'package:super_mario_bros/objects/blocks/mystery_block.dart';
 import 'package:super_mario_bros/objects/platform.dart';
 
@@ -66,6 +69,13 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
             position: Vector2(obj.x, obj.y),
           );
           gameRef.world.add(mysteryBlock);
+          break;
+        case 'Brick':
+          final BrickBlock brickBlock = BrickBlock(
+            position: Vector2(obj.x, obj.y),
+            shouldCrumble: Random().nextBool(),
+          );
+          gameRef.world.add(brickBlock);
           break;
         default:
           break;

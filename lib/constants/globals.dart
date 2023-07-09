@@ -6,6 +6,7 @@ class Globals {
   static const String jumpSmallSFX = 'smb_jump-small.wav';
   static const String pauseSFX = 'smb_pause.wav';
   static const String powerUpAppearsSFX = 'smb_powerup_appears.wav';
+  static const String breakBlockSFX = 'smb_breakblock.wav';
 
   /// Step Times
   static const double marioSpriteStepTime = 0.075;
