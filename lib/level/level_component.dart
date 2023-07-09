@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
+import 'package:flame/experimental.dart';
 import 'package:flame_tiled/flame_tiled.dart';
-import 'package:flutter/material.dart';
 import 'package:super_mario_bros/actors/mario.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
@@ -10,7 +10,7 @@ import 'package:super_mario_bros/objects/platform.dart';
 class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
   final LevelOption option;
 
-  late Rect _levelBounds;
+  late Rectangle _levelBounds;
 
   late Mario _mario;
 
@@ -27,15 +27,24 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
     gameRef.world.add(level);
 
     // Set on screen boundaries for Mario.
-    _levelBounds = Rect.fromLTWH(
-      0,
-      0,
-      (level.tileMap.map.width * level.tileMap.map.tileWidth).toDouble(),
-      (level.tileMap.map.height * level.tileMap.map.tileHeight).toDouble(),
+    _levelBounds = Rectangle.fromPoints(
+      Vector2(
+        0,
+        0,
+      ),
+      Vector2(
+            level.tileMap.map.width.toDouble(),
+            level.tileMap.map.height.toDouble(),
+          ) *
+          Globals.tileSize,
     );
+
+    print(_levelBounds);
 
     createPlatforms(level.tileMap);
     createActors(level.tileMap);
+
+    _setupCamera();
 
     return super.onLoad();
   }
@@ -78,10 +87,21 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
             levelBounds: _levelBounds,
           );
           gameRef.world.add(_mario);
+
           break;
         default:
           break;
       }
     }
+  }
+
+  void _setupCamera() {
+    gameRef.cameraComponent.follow(_mario, maxSpeed: 1000);
+    gameRef.cameraComponent.setBounds(
+      Rectangle.fromPoints(
+        _levelBounds.topRight,
+        _levelBounds.topLeft,
+      ),
+    );
   }
 }

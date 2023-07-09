@@ -1,6 +1,9 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/experimental.dart';
 import 'package:flame/extensions.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/objects/platform.dart';
@@ -12,17 +15,26 @@ enum MarioAnimationState {
 }
 
 class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
-    with CollisionCallbacks {
+    with CollisionCallbacks, KeyboardHandler {
   final double _gravity = 15;
   final Vector2 velocity = Vector2.zero();
   final double _jumpSpeed = 400;
+
+  static const double _minMoveSpeed = 125;
+  static const double _maxMoveSpeed = _minMoveSpeed + 100;
+
+  bool isFacingRight = true;
+
+  double _currentMoveSpeed = _minMoveSpeed;
+
+  int _hAxisInput = 0;
 
   late Vector2 _minClamp;
   late Vector2 _maxClamp;
 
   Mario({
     required Vector2 position,
-    required Rect levelBounds,
+    required Rectangle levelBounds,
   }) : super(
           position: position,
           size: Vector2(
@@ -34,8 +46,8 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     debugMode = true;
     // Prevent Mario from going out of bounds of level.
     // Since anchor is in the center, split size in half for calculation.
-    _minClamp = levelBounds.topLeft.toVector2() + (size / 2);
-    _maxClamp = levelBounds.bottomRight.toVector2() - (size / 2);
+    _minClamp = levelBounds.topLeft + (size / 2);
+    _maxClamp = levelBounds.bottomRight + (size / 2);
 
     add(CircleHitbox());
   }
@@ -54,6 +66,7 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
   }
 
   void velocityUpdate() {
+    velocity.x = _hAxisInput * _currentMoveSpeed;
     // Modify Mario's velocity based on inputs and gravity.
     velocity.y += _gravity;
     velocity.y = velocity.y.clamp(-_jumpSpeed, 150);
@@ -68,6 +81,40 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     position.clamp(_minClamp, _maxClamp);
   }
 
+  // Stagger his speed while idle until he runs consistently.
+  void speedUpdate() {
+    if (_hAxisInput == 0) {
+      _currentMoveSpeed = _minMoveSpeed;
+    } else {
+      if (_currentMoveSpeed <= _maxMoveSpeed) {
+        _currentMoveSpeed++;
+      }
+    }
+  }
+
+  // Set facing direction.
+  void facingDirectionUpdate() {
+    if (_hAxisInput > 0) {
+      isFacingRight = true;
+    } else {
+      isFacingRight = false;
+    }
+
+    if ((_hAxisInput < 0 && scale.x > 0) || (_hAxisInput > 0 && scale.x < 0)) {
+      flipHorizontallyAroundCenter();
+    }
+  }
+
+  @override
+  bool onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    _hAxisInput = 0;
+
+    _hAxisInput += keysPressed.contains(LogicalKeyboardKey.arrowLeft) ? -1 : 0;
+    _hAxisInput += keysPressed.contains(LogicalKeyboardKey.arrowRight) ? 1 : 0;
+
+    return true;
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
@@ -80,6 +127,8 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
 
     velocityUpdate();
     positionUpdate(dt);
+    speedUpdate();
+    facingDirectionUpdate();
   }
 
   @override
