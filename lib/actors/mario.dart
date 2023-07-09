@@ -1,8 +1,7 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
-import 'package:flame/extensions.dart';
-import 'package:flutter/material.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
@@ -20,12 +19,17 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
   final Vector2 velocity = Vector2.zero();
   final double _jumpSpeed = 400;
 
+  final Vector2 _up = Vector2(0, -1);
+
   static const double _minMoveSpeed = 125;
   static const double _maxMoveSpeed = _minMoveSpeed + 100;
 
   bool isFacingRight = true;
 
   double _currentMoveSpeed = _minMoveSpeed;
+
+  bool _jumpInput = false;
+  bool isOnGround = false;
 
   int _hAxisInput = 0;
 
@@ -105,12 +109,28 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     }
   }
 
+  // Allow jump only if jump button pressed and player is on the ground.
+  void jumpUpdate() {
+    if (_jumpInput && isOnGround) {
+      jump();
+    }
+  }
+
+  void jump() {
+    velocity.y = -_jumpSpeed;
+    isOnGround = false;
+
+    // Play jump sound.
+    FlameAudio.play(Globals.jumpSmallSFX);
+  }
+
   @override
   bool onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     _hAxisInput = 0;
 
     _hAxisInput += keysPressed.contains(LogicalKeyboardKey.arrowLeft) ? -1 : 0;
     _hAxisInput += keysPressed.contains(LogicalKeyboardKey.arrowRight) ? 1 : 0;
+    _jumpInput = keysPressed.contains(LogicalKeyboardKey.space);
 
     return true;
   }
@@ -125,6 +145,7 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
       */
     if (dt > 0.05) return;
 
+    jumpUpdate();
     velocityUpdate();
     positionUpdate(dt);
     speedUpdate();
@@ -151,6 +172,11 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     final Vector2 collisionNormal = absoluteCenter - mid;
     double penetrationDepth = (size.x / 2) - collisionNormal.length;
     collisionNormal.normalize();
+
+    // If collision normal is almost upwards, player is on the ground.
+    if (_up.dot(collisionNormal) > 0.9) {
+      isOnGround = true;
+    }
 
     // Fix this collision by moving the player along the collision normal by penetrationDepth.
     position += collisionNormal.scaled(penetrationDepth);
