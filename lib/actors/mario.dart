@@ -5,6 +5,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
+import 'package:super_mario_bros/games/super_mario_bros.dart';
 import 'package:super_mario_bros/objects/platform.dart';
 
 enum MarioAnimationState {
@@ -14,7 +15,7 @@ enum MarioAnimationState {
 }
 
 class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
-    with CollisionCallbacks, KeyboardHandler {
+    with CollisionCallbacks, KeyboardHandler, HasGameRef<SuperMarioBrosGame> {
   final double _gravity = 15;
   final Vector2 velocity = Vector2.zero();
   final double _jumpSpeed = 400;
@@ -35,6 +36,8 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
 
   late Vector2 _minClamp;
   late Vector2 _maxClamp;
+
+  bool _pause = false;
 
   Mario({
     required Vector2 position,
@@ -146,7 +149,19 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     _hAxisInput += keysPressed.contains(LogicalKeyboardKey.arrowRight) ? 1 : 0;
     _jumpInput = keysPressed.contains(LogicalKeyboardKey.space);
 
+    if (keysPressed.contains(LogicalKeyboardKey.keyA)) {
+      _pauseGame();
+    }
+
     return true;
+  }
+
+  void _pauseGame() {
+    FlameAudio.play(Globals.pauseSFX);
+
+    !_pause ? gameRef.pauseEngine() : gameRef.resumeEngine();
+
+    _pause = !_pause;
   }
 
   @override
