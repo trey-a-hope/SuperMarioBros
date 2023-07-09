@@ -1,6 +1,7 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:super_mario_bros/actors/mario.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
@@ -41,5 +42,33 @@ class Goomba extends SpriteAnimationComponent
     );
 
     add(effect);
+
+    add(CircleHitbox());
+  }
+
+  @override
+  void onCollision(
+      Set<Vector2> intersectionPoints, PositionComponent other) async {
+    if (other is Mario) {
+      if (!other.isOnGround) {
+        other.jump();
+
+        animation = AnimationConfigs.goomba.dead();
+
+        position.y += 0.5;
+
+        // Display defeated Goomba for 0.5 seconds.
+        await Future.delayed(
+          const Duration(
+            milliseconds: 500,
+          ),
+        );
+
+        // Remove dead Goomba.
+        removeFromParent();
+      }
+    }
+
+    super.onCollision(intersectionPoints, other);
   }
 }
