@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:super_mario_bros/actors/goomba.dart';
 import 'package:super_mario_bros/actors/mario.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
@@ -87,7 +88,15 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
             levelBounds: _levelBounds,
           );
           gameRef.world.add(_mario);
-
+          break;
+        case 'Goomba':
+          final Goomba goomba = Goomba(
+            position: Vector2(
+              obj.x,
+              obj.y,
+            ),
+          );
+          gameRef.world.add(goomba);
           break;
         default:
           break;
