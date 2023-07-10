@@ -13,15 +13,13 @@ void main() async {
   // Pre-load sprite sheets.
   await SpriteSheets.load();
 
-  // Pre-load audio.
-  FlameAudio.bgm.initialize();
-
   await FlameAudio.audioCache.loadAll(
     [
       Globals.jumpSmallSFX,
       Globals.pauseSFX,
       Globals.bumpSFX,
       Globals.powerUpAppearsSFX,
+      Globals.breakBlockSFX,
     ],
   );
 

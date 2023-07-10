@@ -14,9 +14,6 @@ class Globals {
   static const double mysteryBlockStepTime = 0.2;
   static const double brickBlockStepTime = 0.2;
 
-  /// Time Limits
-  static const int gameTime = 400;
-
   /// Sizes
   static const double tileSize = 16;
 
@@ -31,8 +28,4 @@ class Globals {
   static const String marioIdle = 'mario_idle.gif';
   static const String marioDead = 'mario_dead.gif';
   static const String marioJump = 'mario_jump.gif';
-  static const String magicMushroom = 'magic_mushroom.png';
-
-  /// Tile Prop List Modifiers
-  static const List<String> crushableBrickNames = ['Brick Block 3'];
 }

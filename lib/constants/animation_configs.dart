@@ -85,9 +85,4 @@ class MarioAnimationConfigs {
         [await Sprite.load(Globals.marioJump)],
         stepTime: Globals.marioSpriteStepTime,
       );
-
-  Future<SpriteAnimation> dead() async => SpriteAnimation.spriteList(
-        [await Sprite.load(Globals.marioDead)],
-        stepTime: Globals.marioSpriteStepTime,
-      );
 }
