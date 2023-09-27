@@ -44,8 +44,6 @@ class LevelComponent extends Component with HasGameRef<SuperMarioBrosGame> {
           Globals.tileSize,
     );
 
-    print(_levelBounds);
-
     createPlatforms(level.tileMap);
     createActors(level.tileMap);
     createBlocks(level.tileMap);
