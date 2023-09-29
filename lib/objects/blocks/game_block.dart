@@ -86,12 +86,14 @@ class GameBlock extends SpriteAnimationComponent with CollisionCallbacks {
             (mid.y < position.y + size.y + 4) &&
             other.velocity.y < 0) {
           // Mario bumps his head.
-          other.velocity.y = 0;
+          // other.velocity.y = 0;
 
           hit();
         }
 
-        other.platformPositionCheck(intersectionPoints);
+        other.platformPositionCheck(this);
+
+        // other.platformPositionCheck(intersectionPoints);
       }
     }
   }

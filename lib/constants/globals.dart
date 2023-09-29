@@ -28,4 +28,9 @@ class Globals {
   static const String marioIdle = 'mario_idle.gif';
   static const String marioDead = 'mario_dead.gif';
   static const String marioJump = 'mario_jump.gif';
+
+  static const String superMarioIdle = 'super_mario_idle.gif';
+  static const String superMarioJump = 'super_mario_jump.gif';
+  static const String superMarioDuck = 'super_mario_duck.gif';
+  static const String superMarioSkid = 'super_mario_skid.gif';
 }

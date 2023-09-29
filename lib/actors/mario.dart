@@ -2,23 +2,34 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
 import 'package:super_mario_bros/objects/platform.dart';
 
-enum MarioAnimationState {
+// Form types for Mario.
+enum MarioType {
+  mario,
+  superMario,
+}
+
+// Specific animations for each form of Mario.
+enum MarioAnimations {
   idle,
   walk,
   jump,
+  superIdle,
+  superWalk,
+  superJump,
 }
 
-class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
+class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
     with CollisionCallbacks, KeyboardHandler, HasGameRef<SuperMarioBrosGame> {
   final double _gravity = 15;
   final Vector2 velocity = Vector2.zero();
-  final double _jumpSpeed = 400;
+  final double _jumpSpeed = 500;
 
   final Vector2 _up = Vector2(0, -1);
 
@@ -37,7 +48,15 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
   late Vector2 _minClamp;
   late Vector2 _maxClamp;
 
+  // Flag representing if the game is paused.
   bool _pause = false;
+
+  // Default to small mario.
+  MarioType _marioType = MarioType.mario;
+
+  bool get isJumping => !isOnGround;
+  bool get isWalking => _hAxisInput < 0 || _hAxisInput > 0;
+  bool get isIdle => _hAxisInput == 0;
 
   Mario({
     required Vector2 position,
@@ -56,7 +75,7 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     _minClamp = levelBounds.topLeft + (size / 2);
     _maxClamp = levelBounds.bottomRight + (size / 2);
 
-    add(CircleHitbox());
+    add(RectangleHitbox());
   }
 
   @override
@@ -66,20 +85,32 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     final SpriteAnimation idle = await AnimationConfigs.mario.idle();
     final SpriteAnimation walking = await AnimationConfigs.mario.walking();
     final SpriteAnimation jumping = await AnimationConfigs.mario.jumping();
+    final SpriteAnimation superIdle = await AnimationConfigs.superMario.idle();
+    final SpriteAnimation superWalking =
+        await AnimationConfigs.superMario.walking();
+    final SpriteAnimation superJumping =
+        await AnimationConfigs.superMario.jumping();
 
     animations = {
-      MarioAnimationState.idle: idle,
-      MarioAnimationState.walk: walking,
-      MarioAnimationState.jump: jumping,
+      MarioAnimations.idle: idle,
+      MarioAnimations.walk: walking,
+      MarioAnimations.jump: jumping,
+      MarioAnimations.superIdle: superIdle,
+      MarioAnimations.superWalk: superWalking,
+      MarioAnimations.superJump: superJumping,
     };
 
-    current = MarioAnimationState.idle;
+    current = MarioAnimations.idle;
   }
 
   void velocityUpdate() {
     velocity.x = _hAxisInput * _currentMoveSpeed;
+
     // Modify Mario's velocity based on inputs and gravity.
-    velocity.y += _gravity;
+    if (!isOnGround) {
+      //TODO: This conditional needs more logic.
+      velocity.y += _gravity;
+    }
     velocity.y = velocity.y.clamp(-_jumpSpeed, 150);
   }
 
@@ -131,13 +162,27 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     FlameAudio.play(Globals.jumpSmallSFX);
   }
 
+  // Update animation for Mario based on his current form type.
   void marioAnimationUpdate() {
-    if (!isOnGround) {
-      current = MarioAnimationState.jump;
-    } else if (_hAxisInput < 0 || _hAxisInput > 0) {
-      current = MarioAnimationState.walk;
-    } else if (_hAxisInput == 0) {
-      current = MarioAnimationState.idle;
+    switch (_marioType) {
+      case MarioType.mario:
+        if (isJumping) {
+          current = MarioAnimations.jump;
+        } else if (isWalking) {
+          current = MarioAnimations.walk;
+        } else if (isIdle) {
+          current = MarioAnimations.idle;
+        }
+        break;
+      case MarioType.superMario:
+        if (isJumping) {
+          current = MarioAnimations.superJump;
+        } else if (isWalking) {
+          current = MarioAnimations.superWalk;
+        } else if (isIdle) {
+          current = MarioAnimations.superIdle;
+        }
+        break;
     }
   }
 
@@ -153,9 +198,41 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
       _pauseGame();
     }
 
+    if (keysPressed.contains(LogicalKeyboardKey.keyT)) {
+      if (_marioType == MarioType.mario) {
+        _transform(upgrade: true);
+      } else {
+        _transform(upgrade: false);
+      }
+    }
+
     return true;
   }
 
+  // Update form type and size of Mario.
+  void _transform({required bool upgrade}) {
+    if (upgrade) {
+      switch (_marioType) {
+        case MarioType.mario:
+          size = Vector2(Globals.tileSize, Globals.tileSize * 2);
+          _marioType = MarioType.superMario;
+          break;
+        case MarioType.superMario:
+          break;
+      }
+    } else {
+      switch (_marioType) {
+        case MarioType.mario:
+          break;
+        case MarioType.superMario:
+          size = Vector2(Globals.tileSize, Globals.tileSize);
+          _marioType = MarioType.mario;
+          break;
+      }
+    }
+  }
+
+  // Pause the game.
   void _pauseGame() {
     FlameAudio.play(Globals.pauseSFX);
 
@@ -187,28 +264,35 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimationState>
     super.onCollision(intersectionPoints, other);
 
     if (other is Platform) {
-      if (intersectionPoints.length == 2) {
-        platformPositionCheck(intersectionPoints);
-      }
+      platformPositionCheck(other);
     }
   }
 
-  // Move Mario out of the platform he's standing on.
-  void platformPositionCheck(Set<Vector2> intersectionPoints) {
-    // Calculate the collision normal and penetration depth
-    final Vector2 mid =
-        (intersectionPoints.elementAt(0) + intersectionPoints.elementAt(1)) / 2;
+  // TODO: Finish flow of platform collisions.
+  void platformPositionCheck(PositionComponent platform) {
+    final Rect marioRect = toRect();
+    final Rect platformRect = platform.toRect();
 
-    final Vector2 collisionNormal = absoluteCenter - mid;
-    double penetrationDepth = (size.x / 2) - collisionNormal.length;
-    collisionNormal.normalize();
+    bool hitTop = marioRect.top <= platformRect.bottom;
+    bool hitBottom = marioRect.bottom >= platformRect.top;
+    bool hitLeft = marioRect.left <= platformRect.right;
+    bool hitRight = marioRect.right >= platformRect.left;
 
-    // If collision normal is almost upwards, player is on the ground.
-    if (_up.dot(collisionNormal) > 0.9) {
+    if (hitTop) {
+      velocity.y = 0;
+    }
+
+    if (hitBottom) {
+      velocity.y = 0;
       isOnGround = true;
     }
 
-    // Fix this collision by moving the player along the collision normal by penetrationDepth.
-    position += collisionNormal.scaled(penetrationDepth);
+    if (hitLeft) {
+      velocity.x = 0;
+    }
+
+    if (hitRight) {
+      velocity.x = 0;
+    }
   }
 }

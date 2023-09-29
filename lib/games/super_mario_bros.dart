@@ -15,7 +15,7 @@ class SuperMarioBrosGame extends FlameGame
     cameraComponent = CameraComponent(world: world)
       ..viewport.size = Vector2(450, 50)
       ..viewport.position = Vector2(500, 0)
-      ..viewfinder.visibleGameSize = Vector2(450, 50)
+      ..viewfinder.visibleGameSize = Vector2(500, 0)
       ..viewfinder.position = Vector2(0, 0)
       ..viewfinder.anchor = Anchor.topLeft;
 

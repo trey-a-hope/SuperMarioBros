@@ -8,81 +8,91 @@ class AnimationConfigs {
 
   static GoombaAnimationConfigs goomba = GoombaAnimationConfigs();
   static MarioAnimationConfigs mario = MarioAnimationConfigs();
+  static SuperMarioAnimationConfigs superMario = SuperMarioAnimationConfigs();
+
   static BlockConfigs block = BlockConfigs();
 }
 
 class BlockConfigs {
   SpriteAnimation mysteryBlockIdle() => SpriteAnimation.variableSpriteList(
-        List<Sprite>.generate(
+      List<Sprite>.generate(
           3,
-          (index) => SpriteSheets.itemBlocksSpriteSheet.getSprite(8, 5 + index),
-        ),
-        stepTimes:
-            List<double>.generate(3, (index) => Globals.mysteryBlockStepTime),
-      );
+          (index) =>
+              SpriteSheets.itemBlocksSpriteSheet.getSprite(8, 5 + index)),
+      stepTimes:
+          List<double>.generate(3, (index) => Globals.mysteryBlockStepTime));
 
   SpriteAnimation mysteryBlockHit() => SpriteAnimation.variableSpriteList(
-        [
-          SpriteSheets.itemBlocksSpriteSheet.getSprite(7, 8),
-        ],
-        stepTimes: [
-          Globals.mysteryBlockStepTime,
-        ],
+        [SpriteSheets.itemBlocksSpriteSheet.getSprite(7, 8)],
+        stepTimes: [Globals.mysteryBlockStepTime],
       );
 
   SpriteAnimation brickBlockIdle() => SpriteAnimation.variableSpriteList(
-        [
-          SpriteSheets.itemBlocksSpriteSheet.getSprite(7, 17),
-        ],
-        stepTimes: [
-          Globals.mysteryBlockStepTime,
-        ],
+        [SpriteSheets.itemBlocksSpriteSheet.getSprite(7, 17)],
+        stepTimes: [Globals.mysteryBlockStepTime],
       );
 
   SpriteAnimation brickBlockHit() => SpriteAnimation.variableSpriteList(
-        [
-          SpriteSheets.itemBlocksSpriteSheet.getSprite(7, 19),
-        ],
-        stepTimes: [
-          double.infinity,
-        ],
+        [SpriteSheets.itemBlocksSpriteSheet.getSprite(7, 19)],
+        stepTimes: [double.infinity],
       );
 }
 
 class GoombaAnimationConfigs {
   SpriteAnimation walking() => SpriteAnimation.variableSpriteList(
-        List<Sprite>.generate(
-          2,
-          (index) => SpriteSheets.goombaSpriteSheet.getSprite(0, index),
-        ),
-        stepTimes:
-            List<double>.generate(2, (index) => Globals.goombaSpriteStepTime),
-      );
+      List<Sprite>.generate(
+          2, (index) => SpriteSheets.goombaSpriteSheet.getSprite(0, index)),
+      stepTimes:
+          List<double>.generate(2, (index) => Globals.goombaSpriteStepTime));
 
   SpriteAnimation dead() => SpriteAnimation.variableSpriteList(
-        [
-          SpriteSheets.goombaSpriteSheet.getSprite(0, 2),
-        ],
-        stepTimes: [
-          Globals.goombaSpriteStepTime,
-        ],
+        [SpriteSheets.goombaSpriteSheet.getSprite(0, 2)],
+        stepTimes: [Globals.goombaSpriteStepTime],
       );
 }
 
 class MarioAnimationConfigs {
-  Future<SpriteAnimation> idle() async => SpriteAnimation.spriteList(
-        [await Sprite.load(Globals.marioIdle)],
-        stepTime: Globals.marioSpriteStepTime,
-      );
+  Future<SpriteAnimation> idle() async =>
+      SpriteAnimation.spriteList([await Sprite.load(Globals.marioIdle)],
+          stepTime: Globals.marioSpriteStepTime);
 
   Future<SpriteAnimation> walking() async => SpriteAnimation.spriteList(
-        await Future.wait(
-            [1, 2, 3].map((i) => Sprite.load('mario_${i}_walk.gif')).toList()),
-        stepTime: Globals.marioSpriteStepTime,
-      );
+      await Future.wait(
+          [1, 2, 3].map((i) => Sprite.load('mario_${i}_walk.gif')).toList()),
+      stepTime: Globals.marioSpriteStepTime);
 
-  Future<SpriteAnimation> jumping() async => SpriteAnimation.spriteList(
-        [await Sprite.load(Globals.marioJump)],
-        stepTime: Globals.marioSpriteStepTime,
-      );
+  Future<SpriteAnimation> jumping() async =>
+      SpriteAnimation.spriteList([await Sprite.load(Globals.marioJump)],
+          stepTime: Globals.marioSpriteStepTime);
+}
+
+class SuperMarioAnimationConfigs {
+  Future<SpriteAnimation> idle() async =>
+      SpriteAnimation.spriteList([await Sprite.load(Globals.superMarioIdle)],
+          stepTime: Globals.marioSpriteStepTime);
+
+  Future<SpriteAnimation> walking() async => SpriteAnimation.spriteList(
+      await Future.wait([1, 2, 3]
+          .map((i) => Sprite.load('super_mario_walk_$i.gif'))
+          .toList()),
+      stepTime: Globals.marioSpriteStepTime);
+
+  Future<SpriteAnimation> climbing() async => SpriteAnimation.spriteList(
+      await Future.wait(
+          [1, 2].map((i) => Sprite.load('super_mario_climb_$i.gif')).toList()),
+      stepTime: Globals.marioSpriteStepTime);
+
+  Future<SpriteAnimation> swiming() async => SpriteAnimation.spriteList(
+      await Future.wait([1, 2, 3, 4, 5, 6]
+          .map((i) => Sprite.load('super_mario_swim_$i.gif'))
+          .toList()),
+      stepTime: Globals.marioSpriteStepTime);
+
+  Future<SpriteAnimation> jumping() async =>
+      SpriteAnimation.spriteList([await Sprite.load(Globals.superMarioJump)],
+          stepTime: Globals.marioSpriteStepTime);
+
+  Future<SpriteAnimation> ducking() async =>
+      SpriteAnimation.spriteList([await Sprite.load(Globals.superMarioDuck)],
+          stepTime: Globals.marioSpriteStepTime);
 }
