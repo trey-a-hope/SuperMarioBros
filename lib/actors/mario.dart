@@ -56,8 +56,6 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
   bool get isWalking => _hAxisInput < 0 || _hAxisInput > 0;
   bool get isIdle => _hAxisInput == 0;
 
-  bool sideHit = false;
-
   Mario({
     required Vector2 position,
     required Rectangle levelBounds,
@@ -105,9 +103,7 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
 
   void velocityUpdate() {
     // Set Mario's velocity based on direction and speed.
-    if (!sideHit) {
-      velocity.x = _hAxisInput * _currentMoveSpeed;
-    }
+    velocity.x = _hAxisInput * _currentMoveSpeed;
 
     // Apply gravity to Mario if he's not on the ground.
     if (!isOnGround) {
@@ -272,7 +268,6 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
 
     // Mario is no longer in contact with a platform or Gameblock, so he's not on the ground.
     isOnGround = false;
-    sideHit = false;
   }
 
   // Method that stops Mario's velocity for colliding with solid object.
@@ -328,13 +323,11 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
     }
 
     if (hitLeft) {
-      velocity.x = 0;
-      sideHit = true;
+      // TODO: Set flag to prevent Mario's horizontal velocity from updating...
     }
 
     if (hitRight) {
-      velocity.x = 0;
-      sideHit = true;
+      // TODO: Set flag to prevent Mario's horizontal velocity from updating...
     }
   }
 }
