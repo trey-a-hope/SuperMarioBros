@@ -2,11 +2,11 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:super_mario_bros/constants/animation_configs.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
+import 'package:super_mario_bros/objects/blocks/game_block.dart';
 import 'package:super_mario_bros/objects/platform.dart';
 
 // Form types for Mario.
@@ -36,8 +36,6 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
   static const double _minMoveSpeed = 125;
   static const double _maxMoveSpeed = _minMoveSpeed + 100;
 
-  bool isFacingRight = true;
-
   double _currentMoveSpeed = _minMoveSpeed;
 
   bool _jumpInput = false;
@@ -57,6 +55,8 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
   bool get isJumping => !isOnGround;
   bool get isWalking => _hAxisInput < 0 || _hAxisInput > 0;
   bool get isIdle => _hAxisInput == 0;
+
+  bool sideHit = false;
 
   Mario({
     required Vector2 position,
@@ -104,13 +104,17 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
   }
 
   void velocityUpdate() {
-    velocity.x = _hAxisInput * _currentMoveSpeed;
+    // Set Mario's velocity based on direction and speed.
+    if (!sideHit) {
+      velocity.x = _hAxisInput * _currentMoveSpeed;
+    }
 
-    // Modify Mario's velocity based on inputs and gravity.
+    // Apply gravity to Mario if he's not on the ground.
     if (!isOnGround) {
-      //TODO: This conditional needs more logic.
       velocity.y += _gravity;
     }
+
+    // Ensure Mario's velocity stays within bounds.
     velocity.y = velocity.y.clamp(-_jumpSpeed, 150);
   }
 
@@ -136,12 +140,6 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
 
   // Set facing direction.
   void facingDirectionUpdate() {
-    if (_hAxisInput > 0) {
-      isFacingRight = true;
-    } else {
-      isFacingRight = false;
-    }
-
     if ((_hAxisInput < 0 && scale.x > 0) || (_hAxisInput > 0 && scale.x < 0)) {
       flipHorizontallyAroundCenter();
     }
@@ -215,6 +213,8 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
       switch (_marioType) {
         case MarioType.mario:
           size = Vector2(Globals.tileSize, Globals.tileSize * 2);
+          // Move mario up one tile size since he grew vertically one tile size.
+          position.y -= Globals.tileSize;
           _marioType = MarioType.superMario;
           break;
         case MarioType.superMario:
@@ -263,36 +263,78 @@ class Mario extends SpriteAnimationGroupComponent<MarioAnimations>
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    if (other is Platform) {
-      platformPositionCheck(other);
-    }
+    platformPositionCheck(other);
   }
 
-  // TODO: Finish flow of platform collisions.
-  void platformPositionCheck(PositionComponent platform) {
-    final Rect marioRect = toRect();
-    final Rect platformRect = platform.toRect();
+  @override
+  void onCollisionEnd(PositionComponent other) {
+    super.onCollisionEnd(other);
 
-    bool hitTop = marioRect.top <= platformRect.bottom;
-    bool hitBottom = marioRect.bottom >= platformRect.top;
-    bool hitLeft = marioRect.left <= platformRect.right;
-    bool hitRight = marioRect.right >= platformRect.left;
+    // Mario is no longer in contact with a platform or Gameblock, so he's not on the ground.
+    isOnGround = false;
+    sideHit = false;
+  }
+
+  // Method that stops Mario's velocity for colliding with solid object.
+  void platformPositionCheck(PositionComponent other) {
+    late Rect objRect;
+    final Rect marioRect = toRect();
+
+    // If platform, use toRect for boundaries.
+    if (other is Platform) {
+      objRect = other.toRect();
+    }
+
+    // If game block, use the original position rect boundaries.
+    else if (other is GameBlock) {
+      objRect = other.rect;
+    }
+
+    // Otherwise, component isn't a solid object, so just return.
+    else {
+      return;
+    }
+
+    // Mario's top has collided with solid object.
+    bool hitTop =
+        marioRect.top <= objRect.bottom && marioRect.bottom >= objRect.bottom;
+
+    // Mario's bottom has collided with solid object.
+    bool hitBottom =
+        marioRect.bottom >= objRect.top && marioRect.top <= objRect.top;
+
+    // Mario's left has collided with solid object.
+    bool hitLeft =
+        marioRect.left <= objRect.right && marioRect.right >= objRect.right;
+
+    // Mario's right has collided with solid object.
+    bool hitRight =
+        marioRect.right >= objRect.left && marioRect.left <= objRect.left;
 
     if (hitTop) {
+      // Mario hit his head, so stop his velocity.
       velocity.y = 0;
+
+      // If it's a Gameblock, call hit function.
+      if (other is GameBlock) {
+        other.hit();
+      }
     }
 
     if (hitBottom) {
+      // Mario is standing on something, so stop his velocity.
       velocity.y = 0;
       isOnGround = true;
     }
 
     if (hitLeft) {
       velocity.x = 0;
+      sideHit = true;
     }
 
     if (hitRight) {
       velocity.x = 0;
+      sideHit = true;
     }
   }
 }

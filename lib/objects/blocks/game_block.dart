@@ -2,7 +2,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:super_mario_bros/actors/mario.dart';
+import 'package:flutter/material.dart';
 import 'package:super_mario_bros/constants/globals.dart';
 
 class GameBlock extends SpriteAnimationComponent with CollisionCallbacks {
@@ -17,6 +17,13 @@ class GameBlock extends SpriteAnimationComponent with CollisionCallbacks {
 
   // How for the block moves back down.
   final double _gravity = 0.5;
+
+  Rect get rect => Rect.fromLTRB(
+        _originalPos.x,
+        _originalPos.y,
+        _originalPos.x + Globals.tileSize,
+        _originalPos.y + Globals.tileSize,
+      );
 
   // Constructor
   GameBlock({
@@ -37,6 +44,8 @@ class GameBlock extends SpriteAnimationComponent with CollisionCallbacks {
     // Apply collision detection.
     _originalPos = position;
     add(RectangleHitbox()..collisionType = CollisionType.passive);
+
+    debugMode = true;
   }
 
   @override
@@ -66,35 +75,6 @@ class GameBlock extends SpriteAnimationComponent with CollisionCallbacks {
 
       // Move the block up.
       y -= _hitDistance;
-    }
-  }
-
-  @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollision(intersectionPoints, other);
-    if (other is Mario) {
-      if (intersectionPoints.length == 2) {
-        // Average of two points on the circle that intersected.
-        final Vector2 mid = (intersectionPoints.elementAt(0) +
-                intersectionPoints.elementAt(1)) /
-            2;
-
-        // If hit from the bottom, (4 is for padding when hit from the sides).
-        // When velocity.y is less than 0, Mario is moving up.
-        // When velocity.y is greater than 0, Mario is moving down.
-        if ((mid.y > position.y + size.y - 4) &&
-            (mid.y < position.y + size.y + 4) &&
-            other.velocity.y < 0) {
-          // Mario bumps his head.
-          // other.velocity.y = 0;
-
-          hit();
-        }
-
-        other.platformPositionCheck(this);
-
-        // other.platformPositionCheck(intersectionPoints);
-      }
     }
   }
 }
