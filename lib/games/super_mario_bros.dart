@@ -1,32 +1,53 @@
-import 'package:flame/components.dart';
-import 'package:flame/game.dart';
-import 'package:flame/input.dart';
-import 'package:super_mario_bros/level/level_component.dart';
-import 'package:super_mario_bros/level/level_option.dart';
+import 'package:bonfire/bonfire.dart';
+import 'package:flutter/material.dart';
+import 'package:super_mario_bros/actors/mario.dart';
+import 'package:super_mario_bros/constants/globals.dart';
+import 'package:flutter/services.dart';
 
-class SuperMarioBrosGame extends FlameGame
-    with HasCollisionDetection, HasKeyboardHandlerComponents {
-  LevelComponent? _currentLevel;
+class SuperMarioBrosGame extends StatefulWidget {
+  const SuperMarioBrosGame({Key? key}) : super(key: key);
 
   @override
-  Future<void> onLoad() async {
-    // Configure camera component.
-    camera = CameraComponent(world: world)
-      ..viewport.size = Vector2(450, 50)
-      ..viewport.position = Vector2(500, 0)
-      ..viewfinder.visibleGameSize = Vector2(500, 0)
-      ..viewfinder.position = Vector2(0, 0)
-      ..viewfinder.anchor = Anchor.topLeft;
+  State<SuperMarioBrosGame> createState() => _SuperMarioBrosGameState();
+}
 
-    // Update the currentLevel then add it to the view.
-    _loadLevel(LevelOption.lv_1_1);
-
-    return super.onLoad();
-  }
-
-  void _loadLevel(LevelOption level) {
-    _currentLevel?.removeFromParent();
-    _currentLevel = LevelComponent(level);
-    add(_currentLevel!);
-  }
+class _SuperMarioBrosGameState extends State<SuperMarioBrosGame> {
+  @override
+  Widget build(BuildContext context) => BonfireWidget(
+        joystick: Joystick(
+          directional: JoystickDirectional(),
+          keyboardConfig: KeyboardConfig(
+            acceptedKeys: [
+              LogicalKeyboardKey.numpadEnter,
+              LogicalKeyboardKey.numpad0,
+            ],
+          ),
+          actions: [
+            // JoystickAction(
+            //   actionId: AttackType.melee,
+            //   size: 80,
+            //   margin: const EdgeInsets.only(bottom: 50, right: 50),
+            //   align: JoystickActionAlign.BOTTOM_RIGHT,
+            //   sprite: Sprite.load(Globals.sword),
+            // ),
+            // JoystickAction(
+            //   actionId: AttackType.range,
+            //   size: 50,
+            //   margin: const EdgeInsets.only(bottom: 50, right: 160),
+            //   sprite: Sprite.load(Globals.shurikenSingle),
+            // )
+          ],
+        ),
+        player: Mario(
+          Vector2(100, 100),
+        ),
+        map: WorldMapByTiled(
+          Globals.lv_1_1,
+          forceTileSize: Vector2(
+            32,
+            32,
+          ),
+          objectsBuilder: {},
+        ),
+      );
 }

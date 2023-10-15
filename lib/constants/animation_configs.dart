@@ -1,3 +1,4 @@
+import 'package:bonfire/bonfire.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:super_mario_bros/constants/globals.dart';
@@ -52,18 +53,95 @@ class GoombaAnimationConfigs {
 }
 
 class MarioAnimationConfigs {
-  Future<SpriteAnimation> idle() async =>
-      SpriteAnimation.spriteList([await Sprite.load(Globals.marioIdle)],
-          stepTime: Globals.marioSpriteStepTime);
+  // Future<SpriteAnimation> idle() async =>
+  //     SpriteAnimation.spriteList([await Sprite.load(Globals.marioIdle)],
+  //         stepTime: Globals.marioSpriteStepTime);
 
-  Future<SpriteAnimation> walking() async => SpriteAnimation.spriteList(
-      await Future.wait(
-          [1, 2, 3].map((i) => Sprite.load('mario_${i}_walk.gif')).toList()),
-      stepTime: Globals.marioSpriteStepTime);
+  // Future<SpriteAnimation> walking() async => SpriteAnimation.spriteList(
+  //     await Future.wait(
+  //         [1, 2, 3].map((i) => Sprite.load('mario_${i}_walk.gif')).toList()),
+  //     stepTime: Globals.marioSpriteStepTime);
 
-  Future<SpriteAnimation> jumping() async =>
-      SpriteAnimation.spriteList([await Sprite.load(Globals.marioJump)],
-          stepTime: Globals.marioSpriteStepTime);
+  // Future<SpriteAnimation> jumping() async =>
+  //     SpriteAnimation.spriteList([await Sprite.load(Globals.marioJump)],
+  // //         stepTime: Globals.marioSpriteStepTime);
+  // static SimpleDirectionAnimation greenNinjaAnimation({
+  //   required SpriteSheet spriteSheet,
+  // }) =>
+  //     SimpleDirectionAnimation(
+  //       // idleDown: SpriteAnimation.variableSpriteList(
+  //       //   [spriteSheet.getSprite(0, 0)],
+  //       //   stepTimes: [Globals.marioSpriteStepTime],
+  //       // ),
+  //       // runDown: SpriteAnimation.variableSpriteList(
+  //       //   [
+  //       //     spriteSheet.getSprite(0, 0),
+  //       //     spriteSheet.getSprite(1, 0),
+  //       //     spriteSheet.getSprite(2, 0),
+  //       //     spriteSheet.getSprite(3, 0),
+  //       //   ],
+  //       //   stepTimes: [
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //   ],
+  //       // ),
+  //       // idleUp: SpriteAnimation.variableSpriteList(
+  //       //   [spriteSheet.getSprite(0, 1)],
+  //       //   stepTimes: [Globals.marioSpriteStepTime],
+  //       // ),
+  //       // runUp: SpriteAnimation.variableSpriteList(
+  //       //   [
+  //       //     spriteSheet.getSprite(0, 1),
+  //       //     spriteSheet.getSprite(1, 1),
+  //       //     spriteSheet.getSprite(2, 1),
+  //       //     spriteSheet.getSprite(3, 1),
+  //       //   ],
+  //       //   stepTimes: [
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //   ],
+  //       // ),
+  //       // idleLeft: SpriteAnimation.variableSpriteList(
+  //       //   [spriteSheet.getSprite(0, 2)],
+  //       //   stepTimes: [Globals.marioSpriteStepTime],
+  //       // ),
+  //       // runLeft: SpriteAnimation.variableSpriteList(
+  //       //   [
+  //       //     spriteSheet.getSprite(0, 2),
+  //       //     spriteSheet.getSprite(1, 2),
+  //       //     spriteSheet.getSprite(2, 2),
+  //       //     spriteSheet.getSprite(3, 2),
+  //       //   ],
+  //       //   stepTimes: [
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //     Globals.marioSpriteStepTime,
+  //       //   ],
+  //       // ),
+  //       // idleRight: SpriteAnimation.variableSpriteList(
+  //       //   [Sprite.load(Globals.marioIdle)],
+  //       //   stepTimes: [Globals.marioSpriteStepTime],
+  //       // ),
+  //       runRight: SpriteAnimation.variableSpriteList(
+  //         [
+  //           spriteSheet.getSprite(0, 3),
+  //           spriteSheet.getSprite(1, 3),
+  //           spriteSheet.getSprite(2, 3),
+  //           spriteSheet.getSprite(3, 3),
+  //         ],
+  //         stepTimes: [
+  //           Globals.marioSpriteStepTime,
+  //           Globals.marioSpriteStepTime,
+  //           Globals.marioSpriteStepTime,
+  //           Globals.marioSpriteStepTime,
+  //         ],
+  //       ),
+  //     );
 }
 
 class SuperMarioAnimationConfigs {

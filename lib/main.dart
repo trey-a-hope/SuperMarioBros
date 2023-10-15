@@ -5,7 +5,7 @@ import 'package:super_mario_bros/constants/globals.dart';
 import 'package:super_mario_bros/constants/sprite_sheets.dart';
 import 'package:super_mario_bros/games/super_mario_bros.dart';
 
-SuperMarioBrosGame _superMarioBrosGame = SuperMarioBrosGame();
+SuperMarioBrosGame _superMarioBrosGame = const SuperMarioBrosGame();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +26,7 @@ void main() async {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: GameWidget(game: _superMarioBrosGame),
+      home: _superMarioBrosGame,
     ),
   );
 }
